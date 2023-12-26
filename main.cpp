@@ -1,14 +1,36 @@
 #include <iostream>
+#include<fstream>
 //#include "BTree.h"
-#include "BTree.cpp"
+#include "insert.cpp"
+
+using namespace std;
 
 int main() {
-    char *FileName;
+   char *FileName;
     FileName = "tree.txt";
+    fstream file;
+    file.open(FileName,ios::in);
+    if ((file.fail()))
+    {
+        cout<<"fail "<<endl;
+    }
+    file.close();
     BTree bTree(5,10);
-//    bTree.CreateIndexFileFile(FileName, 10, 5);
-//    bTree.InsertNewRecordAtIndex(FileName, 3, 12);
-//    bTree.InsertNewRecordAtIndex(FileName, 7, 24);
+    bTree.InsertNewRecordAtIndex(FileName, 3, 12);
+    bTree.InsertNewRecordAtIndex(FileName, 7, 24);
+    bTree.InsertNewRecordAtIndex(FileName, 10, 48);
+    bTree.InsertNewRecordAtIndex(FileName, 24, 60);
+    bTree.InsertNewRecordAtIndex(FileName, 14, 72);
+    bTree.InsertNewRecordAtIndex(FileName, 19, 84);
+    bTree.InsertNewRecordAtIndex(FileName, 30, 96);
+    bTree.InsertNewRecordAtIndex(FileName, 15, 108);
+    bTree.InsertNewRecordAtIndex(FileName, 1, 120);
+    bTree.InsertNewRecordAtIndex(FileName, 5, 132);
+
+  //bTree.root->displayKey();
+ //   bTree.CreateIndexFileFile(FileName, 10, 5);
+ // bTree.InsertNewRecordAtIndex(FileName, 3, 12);
+/*//    bTree.InsertNewRecordAtIndex(FileName, 7, 24);
 //    bTree.InsertNewRecordAtIndex(FileName, 10, 48);
 //    bTree.InsertNewRecordAtIndex(FileName, 24, 60);
 //    bTree.InsertNewRecordAtIndex(FileName, 14, 72);
@@ -69,6 +91,14 @@ int main() {
         } else if (n == 4) {
             break;
         }
-    }
+    }*/
+   /* Node n;
+    n.add(3,12);
+    n.add(7,24);
+    n.add(2,23);
+    n.add(0,72);
+    n.add(5,0);
+    n.sort();
+    n.displayKey();*/
     return 0;
 }
