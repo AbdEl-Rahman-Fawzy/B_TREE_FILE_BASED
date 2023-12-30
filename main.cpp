@@ -27,9 +27,10 @@ int main() {
     bTree.InsertNewRecordAtIndex(FileName, 9, 168);
     bTree.InsertNewRecordAtIndex(FileName, 6, 180);
     bTree.InsertNewRecordAtIndex(FileName, 11, 192);
-    bTree.InsertNewRecordAtIndex(FileName, 12, 204);
+   bTree.InsertNewRecordAtIndex(FileName, 12, 204);
     bTree.InsertNewRecordAtIndex(FileName, 17, 216);
     bTree.InsertNewRecordAtIndex(FileName, 18, 228);
     bTree.InsertNewRecordAtIndex(FileName, 32, 240);
     bTree.DisplayIndexFileContent(FileName);
+    cout<<"Record index 67 found at reference "<<bTree.SearchARecord(FileName,67)<<endl;
 }

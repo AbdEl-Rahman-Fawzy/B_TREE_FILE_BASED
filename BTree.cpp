@@ -61,6 +61,9 @@ public:
     {
         return node[i].key;
     }
+    int getAddress(int i){
+        return node[i].address;
+    }
     void changeKeyAt(int index, int value)
     {
         node[index].key=value;
@@ -171,6 +174,46 @@ public:
         splited = {maxnode1, maxnode2};
         return splited;
     }
+    int SearchARecord (char* filename, int RecordID){
+        fstream treeFile;Node read;
+        treeFile.open(filename, ios::in | ios::out | ios::binary);
+        treeFile.seekg( 0,ios::beg);
+        treeFile.read(reinterpret_cast<char *>(&read), sizeof (Node));
+        int norecords;
+        if(read.valOfFreenode[0]==-1){
+            norecords=numberOfRecords;
+        }else{
+        norecords=read.valOfFreenode[0];
+        }
+        int i=0;
+       while(i<norecords-1){
+            treeFile.read(reinterpret_cast<char *>(&read), sizeof (Node));
+            if(read.nonLeaf){
+                i++;
+                continue;
+            }
+            i++;
+            int j=0;bool found=false;
+            while(read.valOfFreenode[j]!=-1){
+                if(read.valOfFreenode[j]>RecordID){
+                    break;
+                }
+                if(read.valOfFreenode[j]==RecordID){
+                    //cout<<"Found "<<read.valOfFreenode[j++]<<" Reference "<<read.valOfFreenode[j++]<<endl;
+                    found=true;
+                    j++;
+                    return read.valOfFreenode[j];
+                }
+            //cout<<read.valOfFreenode[j++]<<" "<<read.valOfFreenode[j++]<<endl;
+            j+=2;
+            }
+
+        }
+        treeFile.close();
+        return -1;
+
+    }
+
     void splitRootLeaf(Node &root, Node &node1, Node &node2, int place1, int place2, int id, int ref) {
         int i;
         root.nonLeaf = 1;
