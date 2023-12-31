@@ -10,4 +10,4 @@ add_executable(B_TREE_FILE_BASED
         .idea/vcs.xml
         .idea/workspace.xml
         BTree.cpp
-        main.cpp)
+        main.cpp BTRE.h)

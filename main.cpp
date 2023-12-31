@@ -1,6 +1,6 @@
 #include <iostream>
 #include<fstream>
-#include "BTree.cpp"
+#include "BTRE.h"
 
 using namespace std;
 
@@ -12,24 +12,25 @@ int main() {
     file.close();
     BTree bTree(5, 10);
     bTree.CreateIndexFileFile(FileName, 10, 5);
-    bTree.InsertNewRecordAtIndex(FileName, 3, 12);
-    bTree.InsertNewRecordAtIndex(FileName, 7, 24);
-    bTree.InsertNewRecordAtIndex(FileName, 10, 48);
-    bTree.InsertNewRecordAtIndex(FileName, 24, 60);
-    bTree.InsertNewRecordAtIndex(FileName, 14, 72);
-    bTree.InsertNewRecordAtIndex(FileName, 19, 84);
-    bTree.InsertNewRecordAtIndex(FileName, 30, 96);
-    bTree.InsertNewRecordAtIndex(FileName, 15, 108);
-    bTree.InsertNewRecordAtIndex(FileName, 1, 120);
-    bTree.InsertNewRecordAtIndex(FileName, 5, 132);
-    bTree.InsertNewRecordAtIndex(FileName, 2, 144);
-    bTree.InsertNewRecordAtIndex(FileName, 8, 156);
-    bTree.InsertNewRecordAtIndex(FileName, 9, 168);
-    bTree.InsertNewRecordAtIndex(FileName, 6, 180);
-    bTree.InsertNewRecordAtIndex(FileName, 11, 192);
-    bTree.InsertNewRecordAtIndex(FileName, 12, 204);
-    bTree.InsertNewRecordAtIndex(FileName, 17, 216);
-    bTree.InsertNewRecordAtIndex(FileName, 18, 228);
-    bTree.InsertNewRecordAtIndex(FileName, 32, 240);
+    bTree.insert(FileName, 3, 12);
+    bTree.insert(FileName, 7, 24);
+    bTree.insert(FileName, 10, 48);
+    bTree.insert(FileName, 24, 60);
+    bTree.insert(FileName, 14, 72);
+    bTree.insert(FileName, 19, 84);
+    bTree.insert(FileName, 30, 96);
+    bTree.insert(FileName, 15, 108);
+    bTree.insert(FileName, 1, 120);
+    bTree.insert(FileName, 5, 132);
+    bTree.insert(FileName, 2, 144);
+    bTree.insert(FileName, 8, 156);
+    bTree.insert(FileName, 9, 168);
+    bTree.insert(FileName, 6, 180);
+    bTree.insert(FileName, 11, 192);
+    bTree.insert(FileName, 12, 204);
+    bTree.insert(FileName, 17, 216);
+    bTree.insert(FileName, 18, 228);
+    bTree.insert(FileName, 32, 240);
+    bTree.writeBTree(FileName);
     bTree.DisplayIndexFileContent(FileName);
 }
