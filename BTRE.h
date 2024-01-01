@@ -7,9 +7,6 @@
 #define B_TREE_FILE_BASED_BTRE_H
 
 using namespace std;
-class BTRE {
-
-};
 
 class Node;
 
@@ -18,34 +15,30 @@ public:
     int key;
     int address;
     Node *next;
-
-    element(int k, int a = -1) {
+    element(int k, int a) {
         key = k;
         address = a;
         next = nullptr;
     }
-
 };
 
 struct SortByKey {
     bool operator()(element const &l, element const &r) {
         return (l.key) < (r.key);
     }
-
 };
 
 //#define nullptr NULL
 class Node {
 public:
-    //m
-    int capacity;
-    int nonLeaf;
-    int *valOfFreenode;
+    Node() = default;
+    int capacity{};
+    int nonLeaf{};
+    int *valOfFreenode{};
     vector<element> node;
     bool isleaf = true;
 
-    Node() {};
-
+    //constructor
     Node(int m, int next) {
         this->capacity = m * 2;
         this->nonLeaf = -1;
@@ -56,81 +49,19 @@ public:
         }
     }
 
-
-    void setCapacity(int s) {
-        capacity = s;
-    }
-
-    int getKey(int i) {
-        return node[i].key;
-    }
-
-    void changeKeyAt(int index, int value) {
-        node[index].key = value;
-    }
-
-    bool is_full() {
-        int size = node.size();
-        if (size == capacity) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    int getSize() {
-        return node.size();
-    }
-
     //sort the vector according to the key
     void sort() {
         std::sort(node.begin(), node.end(), SortByKey());
     }
 
-    //to create and add element to Node
-    void add(int id, int ref) {
-        element e(id, ref);
-        node.push_back(e);
-        this->sort();
-    }
     //add element to Node
-
     void addEle(element e) {
         node.push_back(e);
         this->sort();
     }
 
-    element getfront() {
-        return node.front();
-    }
-
-    void popFront() {
-        node.erase(node.begin());
-
-    }
-
-    int getMaxKey() {
-        return node.back().key;
-    }
-
-    //returns the next Node of an element
-    Node *getNext(int i) {
-        return node[i].next;
-
-    }
-
-    void sortNode(int *arr, int indx) {
-        vector<pair<int, int>> v;
-        for (int i = 0; i <= indx; i += 2) {
-            v.emplace_back(arr[i], arr[i + 1]);
-        }
-        ::sort(v.begin(), v.end());
-        for (int i = 0, j = 0; i <= indx; i += 2, j++) {
-            arr[i] = v[j].first;
-            arr[i + 1] = v[j].second;
-        }
-    }
 };
+
 
 class BTree {
 public:
@@ -139,151 +70,99 @@ public:
     Node *root = nullptr;
     int m, numberOfRecords;
 
-    BTree(int m, int numberOfRecords) {
-        this->m = m;
-        this->numberOfRecords = numberOfRecords;
-    }
+    BTree(int m, int numberOfRecords);
 
-    void CreateIndexFileFile(const char *filename, int numberOfRecords, int m);
+    static void CreateIndexFileFile(const char *filename, int numberOfRecords, int m);
 
-    void DisplayIndexFileContent(const char *filename);
+    static void DisplayIndexFileContent(const char *filename);
 
     Node search(int k) {
         Node x(0, 1);
         return x;
     }
 
-    Node *getNode(int key);
+    //search for first occurrence for a key
+    Node *getNode(int key) const;
 
-    Node *getleafparent(int key);
+    //utility function for del-key
+    Node *getleafparent(int key) const;
 
+    //handle cases of deletion
     void del_key(char *filename, int x);
 
+    //merge two nodes
+    static void merge(Node *current, Node *sibling, Node *parent);
 
-    void merge(Node *current, Node *sibling, Node *parent);
+    //returns last parent to a non-leaf node
+    static Node *getParent(int key, Node *start);
 
-    Node *getParent(int key, Node *start);
+    //return leaf node for a non leaf element
+    static Node *getLeaf(int key, Node *start);
 
-    Node *getLeaf(int key, Node *start);
-
+    //delete a non leaf key and update all occurrences
+    // of non leaf node with the new replacement
     int deletenleaf(Node &x, int key);
 
-    Node *getParent(Node *node, Node *child) {
-        if (node->isleaf) {
-            return NULL;
-        }
-        for (int i = 0; i < m; i++) {
-            if (node->node[i].next == child) {
-                return node;
-            }
-            Node *parent = getParent(node->node[i].next, child);
-            if (parent != nullptr) {
-                return parent;
-            }
-        }
-        return NULL;
-    }
+    //return pointer the
+    Node *getParent(Node *node, Node *child);
 
-    void insert(char *filename, int key, int offset) {
-        if (root == nullptr) {
-            root = new Node;
-            root->isleaf = true;
-            root->addEle(element(key, offset));
-            return;
-        }
+    //handle cases of insertion with splitting and re splitting
+    void insert(int key, int offset);
 
-        Node *node = root;
-        Node *parent = nullptr;
+    //splits node and passing its children to the new children
+    void split(Node *node);
 
-        while (!node->isleaf) {
-            parent = node;
+    //takes node return to_string to that node
+    string writeRecord(Node *node) const;
 
-            int i = 0;
-            while (i < node->node.size() - 1 && key > node->node[i].key) {
-                i++;
-            }
+    //takes file name and update index file
+    void writeBTree(const string &filename);
 
-            if (i < node->node.size() && node->node[i].next != nullptr) {
-                node = node->node[i].next;
-            } else {// No more child nodes to traverse
-                break;
-            }
-        }
-
-        node->addEle(element(key, offset));
-
-        if (parent != nullptr) {
-            // Update parent node with the maximum value from the child
-            int maxKeyIndex = parent->node.size() - 1;
-            if (parent->node[maxKeyIndex].key < node->node[node->node.size() - 1].key) {
-                parent->node[maxKeyIndex] = node->node[node->node.size() - 1];
-            }
-        }
-
-        if (node->node.size() > m) {
-            split(node);
-        }
-    }
-
-
-    void split(Node *node) {
-        Node *left = new Node;
-        left->isleaf = true;
-        Node *right = new Node;
-        right->isleaf = true;
-        int mid = node->node.size() / 2;
-        for (int i = 0; i < mid; i++) {
-            left->addEle(element(node->node[i].key, node->node[i].address));
-        }
-
-        for (int i = mid; i < node->node.size(); i++) {
-            right->addEle(element(node->node[i].key, node->node[i].address));
-        }
-
-        if (!node->isleaf) {
-            for (int i = 0; i < mid; i++) {
-                left->node[i].next = node->node[i].next;
-            }
-            for (int i = mid; i < node->node.size(); i++) {
-                right->node[i - mid].next = node->node[i].next;
-            }
-        }
-
-        if (node == root) {
-            root = new Node;
-            root->isleaf = true;
-            root->addEle(element(node->node[mid - 1].key, node->node[mid - 1].address));
-            root->addEle(element(node->node[node->node.size() - 1].key, node->node[node->node.size() - 1].address));
-            root->node[0].next = left;
-            root->node[1].next = right;
-
-        } else {
-            Node *parent = getParent(root, node);
-            int i = 0;
-            while (i < parent->node.size() - 1 && node->node[mid].key > parent->node[i].key) {
-                i++;
-            }
-            parent->addEle(element(node->node[mid - 1].key, node->node[mid - 1].address));
-            // shift children to the right
-            for (int j = parent->node.size() - 1; j > i; j--) {
-                parent->node[j + 1].next = parent->node[j].next;
-            }
-            parent->node[i].next = left;
-            parent->node[i + 1].next = right;
-            if (parent->node.size() > m) {
-                split(parent);
-            }
-        }
-    }
-
-
-    void writeBTree(string filename, int maxKeys, Node *root);
-
-    string writeRecord(Node *node);
-
-    void writeBTree(string filename);
+    int search(char *filename, int RecordID);
 };
 
+///------search function--------->>>>>>
+
+int BTree ::search (char* filename, int RecordID){
+    fstream treeFile;Node read;
+    treeFile.open(filename, ios::in | ios::out | ios::binary);
+    treeFile.seekg( 0,ios::beg);
+    treeFile.read(reinterpret_cast<char *>(&read), sizeof (Node));
+    int norecords;
+    if(read.valOfFreenode[0]==-1){
+        norecords=m;
+    }else{
+        norecords=read.valOfFreenode[0];
+    }
+    int i=0;
+    while(i<norecords-1){
+        treeFile.read(reinterpret_cast<char *>(&read), sizeof (Node));
+        if(read.nonLeaf){
+            i++;
+            continue;
+        }
+        i++;
+        int j=0;bool found=false;
+        while(read.valOfFreenode[j]!=-1){
+            if(read.valOfFreenode[j]>RecordID){
+                break;
+            }
+            if(read.valOfFreenode[j]==RecordID){
+                //cout<<"Found "<<read.valOfFreenode[j++]<<" Reference "<<read.valOfFreenode[j++]<<endl;
+                found=true;
+                j++;
+                return read.valOfFreenode[j];
+            }
+            //cout<<read.valOfFreenode[j++]<<" "<<read.valOfFreenode[j++]<<endl;
+            j+=2;
+        }
+
+    }
+    treeFile.close();
+    return -1;
+
+}
+///--------------------->>>>
 
 void BTree::CreateIndexFileFile(const char *filename, int numberOfRecords, int m) {
     fstream Btree;
@@ -299,22 +178,20 @@ void BTree::CreateIndexFileFile(const char *filename, int numberOfRecords, int m
 }
 
 void BTree::DisplayIndexFileContent(const char *filename) {
-    fstream Btree;
-    Btree.open(filename, ios::in | ios::out | ios::binary | ios::app);
-    Btree.seekg(0, ios::beg);
-    Node read;
-    while (Btree.read((char *) &read, sizeof(read))) {
-        cout << read.nonLeaf << " ";
-        for (int i = 0; i < read.capacity; ++i) {
-            cout << read.valOfFreenode[i] << " ";
+    std::ifstream file(filename);
+
+    if (file.is_open()) {
+        std::string line;
+        while (getline(file, line)) {
+            std::cout << line << std::endl;
         }
-        cout << endl;
+        file.close();
+    } else {
+        std::cerr << "Unable to open file: " << filename << std::endl;
     }
-    cout << endl;
-    Btree.close();
 }
 
-Node *BTree::getNode(int key) {
+Node *BTree::getNode(int key) const {
     if (root == nullptr) {
         return nullptr;
     }
@@ -341,7 +218,7 @@ Node *BTree::getNode(int key) {
     return nullptr;
 }
 
-Node *BTree::getleafparent(int key) {
+Node *BTree::getleafparent(int key) const {
     if (root == nullptr) {
         return nullptr;
     }
@@ -364,7 +241,6 @@ Node *BTree::getleafparent(int key) {
             counter++;
         }
         count++;
-
     }
     return nullptr;
 }
@@ -395,7 +271,7 @@ void BTree::del_key(char *filename, int x) {
                         int temp2 = parent->node[parent->node.size() - 2].address;
                         target->node.erase(target->node.begin() + i);
                         del_key(filename, temp);
-                        insert(filename, temp, temp2);
+                        insert(temp, temp2);
                     }
                 }
             }
@@ -419,7 +295,7 @@ void BTree::del_key(char *filename, int x) {
                         int temp2 = parent->node[parent->node.size() - 2].address;
                         deletenleaf(*target, x);
                         del_key(filename, temp);
-                        insert(filename, temp, temp2);
+                        insert(temp, temp2);
                     }
                 }
             }
@@ -435,7 +311,6 @@ void BTree::merge(Node *current, Node *sibling, Node *parent) {
     parent->node.pop_back();
     parent->node[parent->node.size() - 1].key = x.first;
     parent->node[parent->node.size() - 1].address = x.second;
-    //update index file
 }
 
 Node *BTree::getParent(int key, Node *start) {
@@ -473,8 +348,7 @@ int BTree::deletenleaf(Node &x, int key) {
         x.node.pop_back();
         //update index file
         return x.node[x.node.size() - 1].key;
-    }
-    if (!x.isleaf) {
+    } else {
         for (auto &i: x.node) {
             if (i.key == key) {
                 int replace = deletenleaf(*(i.next), key);
@@ -486,51 +360,171 @@ int BTree::deletenleaf(Node &x, int key) {
     }
 }
 
-string BTree:: writeRecord(Node *node) {
-    string record = "";
+string BTree::writeRecord(Node *node) const {
+    string record;
     int cnt = 0;
-    record += to_string(node->isleaf) + '|';
+    record += to_string(!node->isleaf) + '|';
 
     for (const auto &key: node->node) {
-
         record += to_string(key.key) + '|' + to_string(key.address) + '|';
-        cnt+=2;
+        cnt += 2;
     }
 
-    while (cnt < m*2) {
+    while (cnt < m * 2) {
         record += to_string(-1) + '|';
         cnt++;
     }
     return record;
 }
 
-void BTree::writeBTree(string filename) {
-
-    vector<pair<int ,Node >>print;
-    int x = 1 ;
-    queue<Node>toprint;
+void BTree::writeBTree(const string &filename) {
+    vector<pair<int, Node>> print;
+    int x = 1;
+    queue<Node> toprint;
     toprint.push(*root);
 
-    while(!toprint.empty()){
+    // Open the file outside the loop
+    this->BTreeFile.open(filename, ios::out);
+
+    while (!toprint.empty()) {
         Node temp2 = toprint.front();
-        print.emplace_back(x,temp2);
+        print.emplace_back(++x, temp2);
         toprint.pop();
-        for(auto i : temp2.node){
-            if(i.next!=NULL)
+        for (auto i: temp2.node) {
+            if (i.next != nullptr)
                 toprint.push(*i.next);
         }
     }
-    sort(print.begin(), print.end(), [](const auto& a, const auto& b) {
+
+    // Sort the vector after the loop
+    sort(print.begin(), print.end(), [](const auto &a, const auto &b) {
         return a.first < b.first;
     });
-    for(auto i : print){
-        this->BTreeFile.open(filename, ios::out);
-        string val = writeRecord(&(i.second));
-        BTreeFile.write(val.data(),val.size());
-        BTreeFile.put('\n');
+
+    stringstream val;
+    for (auto i: print) {
+        val << writeRecord(&(i.second));
+        val << '\n';
     }
 
+    // Write to the file and then close it
+    BTreeFile << val.str();
     this->BTreeFile.close();
 }
 
+Node *BTree::getParent(Node *node, Node *child) {
+    if (node->isleaf) {
+        return nullptr;
+    }
+    for (int i = 0; i < m; i++) {
+        if (node->node[i].next == child) {
+            return node;
+        }
+        Node *parent = getParent(node->node[i].next, child);
+        if (parent != nullptr) {
+            return parent;
+        }
+    }
+    return nullptr;
+}
+
+void BTree::insert(int key, int offset) {
+    if (root == nullptr) {
+        root = new Node;
+        root->isleaf = true;
+        root->addEle(element(key, offset));
+        return;
+    }
+
+    Node *node = root;
+    Node *parent = nullptr;
+
+    while (!node->isleaf) {
+        parent = node;
+
+        int i = 0;
+        while (i < node->node.size() - 1 && key > node->node[i].key) {
+            i++;
+        }
+
+        if (i < node->node.size() && node->node[i].next != nullptr) {
+            node = node->node[i].next;
+        } else {// No more child nodes to traverse
+            break;
+        }
+    }
+    node->addEle(element(key, offset));
+
+    if (parent != nullptr) {
+        // Update parent node with the maximum value from the child
+        int maxKeyIndex = parent->node.size() - 1;
+        if (parent->node[maxKeyIndex].key < node->node[node->node.size() - 1].key) {
+            parent->node[maxKeyIndex].key = node->node[node->node.size() - 1].key;
+        }
+    }
+
+    if (node->node.size() > m) {
+        split(node);
+    }
+}
+
+void BTree::split(Node *node) {
+    Node *left = new Node;
+    left->isleaf = node->isleaf;
+    Node *right = new Node;
+    right->isleaf = node->isleaf;
+    int mid = node->node.size() / 2;
+    for (int i = 0; i < mid; i++) {
+        left->addEle(element(node->node[i].key, node->node[i].address));
+    }
+
+    for (int i = mid; i < node->node.size(); i++) {
+        right->addEle(element(node->node[i].key, node->node[i].address));
+    }
+
+    if (!node->isleaf) {
+        for (int i = 0; i < mid; i++) {
+            left->node[i].next = node->node[i].next;
+        }
+        for (int i = mid; i < node->node.size(); i++) {
+            right->node[i - mid].next = node->node[i].next;
+        }
+    }
+
+    if (node == root) {
+        root = new Node;
+        root->isleaf = false;
+        root->addEle(element(node->node[mid - 1].key, node->node[mid - 1].address));
+        root->addEle(element(node->node[node->node.size() - 1].key, node->node[node->node.size() - 1].address));
+        root->node[0].next = left;
+        root->node[1].next = right;
+
+    } else {
+        Node *parent = getParent(root, node);
+        int i = 0;
+        while (i < parent->node.size() - 1 && node->node[mid].key > parent->node[i].key) {
+            i++;
+        }
+        parent->addEle(element(node->node[mid - 1].key, node->node[mid - 1].address));
+        // shift children to the right
+        parent->node[i].next = left;
+        parent->node[i + 1].next = right;
+        if (parent->node.size() > m) {
+            split(parent);
+        }
+    }
+}
+
+BTree::BTree(int m, int numberOfRecords) {
+    this->m = m;
+    this->numberOfRecords = numberOfRecords;
+}
+
 #endif //B_TREE_FILE_BASED_BTRE_H
+
+///code ends here
+///------------------->>
+///-Z-A-W-A-R-U-D-O-O-0
+///-I-S-_-U-R-_-B-O-S-S
+///------------------->>
+
