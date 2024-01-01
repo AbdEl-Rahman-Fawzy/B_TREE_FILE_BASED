@@ -31,6 +31,7 @@ struct SortByKey {
 //#define nullptr NULL
 class Node {
 public:
+    int line;
     Node() = default;
     int capacity{};
     int nonLeaf{};
@@ -65,7 +66,9 @@ public:
 
 class BTree {
 public:
+    int MaxElements ;
     fstream BTreeFile;
+
     int line = 1;
     Node *root = nullptr;
     int m, numberOfRecords;
@@ -77,8 +80,7 @@ public:
     static void DisplayIndexFileContent(const char *filename);
 
     Node search(int k) {
-        Node x(0, 1);
-        return x;
+
     }
 
     //search for first occurrence for a key
@@ -124,7 +126,8 @@ public:
 ///------search function--------->>>>>>
 
 int BTree ::search (char* filename, int RecordID){
-    fstream treeFile;Node read;
+    fstream treeFile;
+    Node read;
     treeFile.open(filename, ios::in | ios::out | ios::binary);
     treeFile.seekg( 0,ios::beg);
     treeFile.read(reinterpret_cast<char *>(&read), sizeof (Node));
@@ -246,6 +249,12 @@ Node *BTree::getleafparent(int key) const {
 }
 
 void BTree::del_key(char *filename, int x) {
+    if(MaxElements == m * numberOfRecords){
+        cout<<"empty tree!!!!";
+        return;
+    }
+    MaxElements++;
+
     Node *target = getNode(x);
     if (target == nullptr) {
         cout << "key not found \n";
@@ -378,8 +387,7 @@ string BTree::writeRecord(Node *node) const {
 }
 
 void BTree::writeBTree(const string &filename) {
-    vector<pair<int, Node>> print;
-    int x = 1;
+    vector<Node> print;
     queue<Node> toprint;
     toprint.push(*root);
 
@@ -388,7 +396,7 @@ void BTree::writeBTree(const string &filename) {
 
     while (!toprint.empty()) {
         Node temp2 = toprint.front();
-        print.emplace_back(++x, temp2);
+        print.emplace_back(temp2);
         toprint.pop();
         for (auto i: temp2.node) {
             if (i.next != nullptr)
@@ -398,12 +406,12 @@ void BTree::writeBTree(const string &filename) {
 
     // Sort the vector after the loop
     sort(print.begin(), print.end(), [](const auto &a, const auto &b) {
-        return a.first < b.first;
+        return a.line > b.line;
     });
 
     stringstream val;
     for (auto i: print) {
-        val << writeRecord(&(i.second));
+        val << writeRecord(&i);
         val << '\n';
     }
 
@@ -429,9 +437,15 @@ Node *BTree::getParent(Node *node, Node *child) {
 }
 
 void BTree::insert(int key, int offset) {
+    if(!MaxElements){
+        cout<<"Full tree!!!!!!\n";
+        return;
+    }
+    MaxElements--;
     if (root == nullptr) {
         root = new Node;
         root->isleaf = true;
+        root->line = this->line++;
         root->addEle(element(key, offset));
         return;
     }
@@ -470,8 +484,10 @@ void BTree::insert(int key, int offset) {
 
 void BTree::split(Node *node) {
     Node *left = new Node;
+    left->line = this->line++;
     left->isleaf = node->isleaf;
     Node *right = new Node;
+    right->line = this->line++;
     right->isleaf = node->isleaf;
     int mid = node->node.size() / 2;
     for (int i = 0; i < mid; i++) {
@@ -501,6 +517,7 @@ void BTree::split(Node *node) {
 
     } else {
         Node *parent = getParent(root, node);
+        parent->line = getParent(root,node)->line;
         int i = 0;
         while (i < parent->node.size() - 1 && node->node[mid].key > parent->node[i].key) {
             i++;
@@ -516,6 +533,7 @@ void BTree::split(Node *node) {
 }
 
 BTree::BTree(int m, int numberOfRecords) {
+    MaxElements = m * numberOfRecords;
     this->m = m;
     this->numberOfRecords = numberOfRecords;
 }

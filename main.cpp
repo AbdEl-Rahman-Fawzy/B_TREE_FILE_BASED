@@ -1,90 +1,111 @@
-/*#include <iostream>
+#include <iostream>
 #include "BTRE.h"
 
 using namespace std;
-
+void prepare(BTree * bTree ) {
+    bTree->insert(3, 12);
+    bTree->insert(7, 24);
+    bTree->insert(10, 48);
+    bTree->insert(24, 60);
+    bTree->insert(14, 72);
+    bTree->insert(19, 84);
+    bTree->insert(30, 96);
+    bTree->insert(15, 108);
+    bTree->insert(1, 120);
+    bTree->insert(5, 132);
+    bTree->insert(2, 144);
+    bTree->insert(8, 156);
+    bTree->insert(9, 168);
+    bTree->insert(6, 180);
+    bTree->insert(11, 192);
+    bTree->insert(12, 204);
+    bTree->insert(17, 216);
+    bTree->insert(18, 228);
+    bTree->insert(32, 240);
+}
 int main() {
     const char *FileName;
     FileName = "tree.txt";
     fstream file;
     file.open(FileName, ios::out);
     file.close();
-    BTree bTree(5, 10);
-    bTree.CreateIndexFileFile(FileName, 10, 5);
-    bTree.insert(3, 12);
-    bTree.insert(7, 24);
-    bTree.insert(10, 48);
-    bTree.insert(24, 60);
-    bTree.insert(14, 72);
-    bTree.insert(19, 84);
-    bTree.insert(30, 96);
-    bTree.insert(15, 108);
-    bTree.insert(1, 120);
-    bTree.insert(5, 132);
-    bTree.insert(2, 144);
-    bTree.insert(8, 156);
-    bTree.insert(9, 168);
-    bTree.insert(6, 180);
-    bTree.insert(11, 192);
-    bTree.insert(12, 204);
-    bTree.insert(17, 216);
-    bTree.insert(18, 228);
-    bTree.insert(32, 240);
+
+    char filename[50];
+    int choice, RecordID, Reference, m, numberOfRecords, result;
+
+    cout << "Enter the filename: ";
+    std::cin >> filename;
+
+    cout << "Enter the value of m: ";
+    cin >> m;
+
+    cout << "Enter the number of records: ";
+
+    cin >> numberOfRecords;
+
+    BTree bTree(m, numberOfRecords);
+    bTree.CreateIndexFileFile(filename, numberOfRecords, m);
+
+    prepare(&bTree);
     bTree.writeBTree(FileName);
-    cout<<"\n\n";
-    bTree.del_key(const_cast<char *>(FileName), 10);
+    cout << "\n\n";
     bTree.writeBTree(FileName);
     bTree.DisplayIndexFileContent(FileName);
 
-}
-*/
-#include <iostream>
-#include<fstream>
-#include "BTRE.h"
+    do {
+        std::cout << "\nMenu:\n";
+        std::cout << "1. Insert New Record\n";
+        std::cout << "2. Delete Record\n";
+        std::cout << "3. Display Index File Content\n";
+        std::cout << "4. Search a Record\n";
+        std::cout << "5. Exit\n";
+        std::cout << "Enter your choice: ";
+        std::cin >> choice;
 
-using namespace std;
+        switch (choice) {
+            case 1:
+                std::cout << "Enter RecordID and Reference to insert: ";
+                cin >> RecordID >> Reference;
+                bTree.insert(RecordID, Reference);
+                bTree.writeBTree(FileName);
+                break;
 
-int main() {
+            case 2:
+                cout << "Enter RecordID to delete: ";
+                cin >> RecordID;
+                bTree.del_key(filename, RecordID);
+                cout << "Record deleted.\n";
+                bTree.writeBTree(FileName);
+                break;
 
-    char *FileName;
-    FileName = "tree.txt";
-    fstream file;
-    file.open(FileName, ios::out);
-    file.close();
-    BTree bTree(5, 10);
-    bTree.CreateIndexFileFile(FileName, 10, 5);
-    int n,DID,SearchKey;
-    while(true) {
-        cout << "1- Display Index File\n";
-        cout << "2- Delete Record\n";
-        cout << "3- Search Record\n";
-        cout << "4- Exit\n";
-        cout << "\nEnter Choice: ";
-        cin >> n;
+            case 3:
+                cout << "Index File Content:\n";
+                bTree.DisplayIndexFileContent(filename);
+                bTree.writeBTree(FileName);
+                break;
 
-        if (n == 1) {
-            cout << endl;
-            bTree.DisplayIndexFileContent(FileName);
-            cout << endl;
-        } else if (n == 2) {
-            cout << "Enter Element to delete: ";
-            cin >> DID;
-            bTree.del_key(FileName, DID);
-            cout << endl;
+            case 4:
+                std::cout << "Enter RecordID to search: ";
+                std::cin >> RecordID;
+                result = bTree.search(filename, RecordID);
+                if (result == -1) {
+                    std::cout << "Record not found in the index.\n";
+                } else {
+                    std::cout << "Record found at index " << result << ".\n";
+                }
+                break;
 
-        } else if (n == 3) {
-            cout << "Enter the SearchKey to search: ";
-            cin >> SearchKey;
-            cout << endl;
-            int Search = bTree.search(FileName, SearchKey);
-            if (Search == -1) {
-                cout << Search << endl << "not found" << endl;
-            } else if (Search == 0) {
-                cout << "File Is Empty .. " << endl;
-            }
+            case 5:
+                std::cout << "Exiting program.\n";
+                break;
 
-        } else if (n == 4) {
-            break;
+            default:
+                std::cout << "Invalid choice. Please try again.\n";
         }
-    }
+
+    } while (choice != 5);
+
+    return 0;
 }
+
+
