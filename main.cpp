@@ -53,16 +53,23 @@ int main() {
     file.close();
     BTree bTree(5, 10);
     bTree.CreateIndexFileFile(FileName, 10, 5);
-    int n,DID,SearchKey;
+    int n,DID,SearchKey,key,offset;
     while(true) {
+        cout<<"0- insert record\n";
         cout << "1- Display Index File\n";
         cout << "2- Delete Record\n";
         cout << "3- Search Record\n";
         cout << "4- Exit\n";
         cout << "\nEnter Choice: ";
         cin >> n;
-
-        if (n == 1) {
+        if(n==0){
+            cout<<"Enter key\n";
+            cin>>key;
+            cout<<"Enter offset\n";
+            cin>>offset;
+            bTree.insert(key,offset);
+        }
+        else if (n == 1) {
             cout << endl;
             bTree.DisplayIndexFileContent(FileName);
             cout << endl;
