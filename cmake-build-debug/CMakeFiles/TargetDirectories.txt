@@ -1,0 +1,3 @@
+C:/Users/Hatem/OneDrive/Documents/GitHub/B_TREE_FILE_BASED/cmake-build-debug/CMakeFiles/B_TREE_FILE_BASED.dir
+C:/Users/Hatem/OneDrive/Documents/GitHub/B_TREE_FILE_BASED/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/Hatem/OneDrive/Documents/GitHub/B_TREE_FILE_BASED/cmake-build-debug/CMakeFiles/rebuild_cache.dir
