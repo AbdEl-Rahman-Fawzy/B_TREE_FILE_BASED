@@ -1,0 +1,3 @@
+D:/file system/assignment 2/B_TREE_FILE_BASED/cmake-build-debug/CMakeFiles/B_TREE_FILE_BASED.dir
+D:/file system/assignment 2/B_TREE_FILE_BASED/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/file system/assignment 2/B_TREE_FILE_BASED/cmake-build-debug/CMakeFiles/rebuild_cache.dir
